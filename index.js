@@ -95,10 +95,15 @@ app.patch('/allpets/:id', async(req, res)=>{
 })
 
 
+//  delete///////////////////////////////////////////////
 
+app.delete('/allpets/:id', async(req, res)=>{
+  const id = req.params.id;
+const filter = { _id: new ObjectId(id) };
 
-
-
+  const result = await petsCollection.deleteOne(filter);
+  res.json(result)
+})
 
 
 
