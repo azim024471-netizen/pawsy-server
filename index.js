@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
  
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion ,  ObjectId } = require('mongodb');
 const uri =process.env.MONGODB_URI;
 const port =process.env.PORT || 1234;
 
@@ -65,6 +65,35 @@ app.get('/mypets/:userId', async(req, res) => {
     const result = await cursor.toArray()
     res.send(result)
 })
+
+
+app.get('/allpets/:id', async(req, res)=>{
+ 
+  const id = req.params.id;
+  // console.log(id, 'id that have sent from ui to server')
+   const query = {
+      _id : new ObjectId(id)
+    }
+    
+    const result = await petsCollection.findOne(query);
+    console.log(result, 'from server after comple the  data  ger');
+    res.send(result)
+})
+ 
+
+
+// for update one patch /////////////////////////////////////////
+
+
+app.patch('/allpets/:id', async(req, res)=>{
+  const id = req.params.id;
+  const updateData = req.body;
+   const query = {_id : new ObjectId(id)}
+
+ const result = await petsCollection.updateOne(query, {$set : updateData});
+ res.json(result)
+})
+
 
 
 
