@@ -34,30 +34,40 @@ async function run() {
     
 const db = client.db('Pawsy');
 const petsCollection =db.collection('allpets');
+const adoptionCollection =db.collection('adoption_requests');
+
 
 
 // post ////////////////////////////////////////////////////////////////////////////////
 
 app.post('/allpets', async(req, res)=>{
     const petsData = req.body;
-    console.log(petsData, 'this is from server consol pets post')
+    // console.log(petsData, 'this is from server consol pets post')
     const result = await petsCollection.insertOne(petsData);
-     console.log(result, 'inserted result')
+    //  console.log(result, 'inserted result')
     res.json(result)
-
+    
 })
 
+ app.post('/adoption-requests', async(req, res)=>{
+  const reqData = req.body;
+  // console.log(reqData, 'this is from server consol adption post')
+  const result = await adoptionCollection.insertOne(reqData);
+  // console.log(result, 'result form server  adoption postt')
+  res.json(result)
+ })
 
-///////get///////////////////
+
+// get////////////////////////////////////////////
 
 
 app.get('/allpets', async(req, res)=>{
      const cursor = petsCollection.find();
   const result = await cursor.toArray();
-  console.log(result, 'result of  get all pets')
+  // console.log(result, 'result of  get all pets')
   res.send(result) 
 })
-
+ 
 
 app.get('/mypets/:userId', async(req, res) => {
     const userId = req.params.userId
@@ -68,19 +78,26 @@ app.get('/mypets/:userId', async(req, res) => {
 
 
 app.get('/allpets/:id', async(req, res)=>{
- 
+  
   const id = req.params.id;
   // console.log(id, 'id that have sent from ui to server')
-   const query = {
-      _id : new ObjectId(id)
-    }
-    
-    const result = await petsCollection.findOne(query);
-    console.log(result, 'from server after comple the  data  ger');
+  const query = {
+    _id : new ObjectId(id)
+  }
+  const result = await petsCollection.findOne(query);
+  // console.log(result, 'from server after comple the  data  ger');
+  res.send(result)
+})
+
+
+
+
+app.get('/adoption-requests/:userId', async(req, res) => {
+    const userId = req.params.userId
+    const cursor = adoptionCollection.find({ applicantId: userId })
+    const result = await cursor.toArray()
     res.send(result)
 })
- 
-
 
 // for update one patch /////////////////////////////////////////
 
