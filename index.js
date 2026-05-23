@@ -99,6 +99,33 @@ app.get('/adoption-requests/:userId', async(req, res) => {
     res.send(result)
 })
 
+
+
+app.get('/adoption-requests/pet/:petId', async (req, res) => {
+    const id = req.params.petId;
+    const query = { petId: id }; 
+    
+    const cursor = adoptionCollection.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
+});
+
+
+
+//  kew request korse kina jante ///////////////////////////////////////////// getttttttttttt
+
+app.get('/adoption-requests/check/:petId/:userId', async (req, res) => {
+    const { petId, userId } = req.params;
+    const result = await adoptionCollection.findOne({ 
+        petId: petId, 
+        applicantId: userId 
+    });
+    res.json(result); 
+});
+
+
+
+
 // for update one patch /////////////////////////////////////////
 
 
@@ -119,6 +146,15 @@ app.delete('/allpets/:id', async(req, res)=>{
 const filter = { _id: new ObjectId(id) };
 
   const result = await petsCollection.deleteOne(filter);
+  res.json(result)
+})
+
+app.delete('/adoption-requests/:id', async(req, res)=>{
+  const id = req.params.id;
+const filter = { _id: new ObjectId(id) };
+
+  const result = await adoptionCollection.deleteOne(filter);
+  console.log(result)
   res.json(result)
 })
 
