@@ -139,6 +139,32 @@ app.patch('/allpets/:id', async(req, res)=>{
 })
 
 
+
+app.patch('/adoption-requests/:id', async (req, res) => {
+    const id = req.params.id;
+    const { setStatus, petId } = req.body;
+
+    const result = await adoptionCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: setStatus } }
+    );
+
+    if (status === 'Approved') {
+        await petsCollection.updateOne(
+            { _id: new ObjectId(petId) },   
+            { $set: { isAdopted: true } }
+        );
+        await adoptionCollection.deleteMany({
+            petId: petId,
+            _id: { $ne: new ObjectId(id) }  
+        });
+    }
+
+    res.json(result);
+});
+
+
+
 //  delete///////////////////////////////////////////////
 
 app.delete('/allpets/:id', async(req, res)=>{
