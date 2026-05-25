@@ -49,6 +49,8 @@ app.post('/allpets', async(req, res)=>{
     
 })
 
+
+
  app.post('/adoption-requests', async(req, res)=>{
   const reqData = req.body;
   // console.log(reqData, 'this is from server consol adption post')
@@ -58,16 +60,37 @@ app.post('/allpets', async(req, res)=>{
  })
 
 
+
+
+
 // get////////////////////////////////////////////
 
 
+
+
 app.get('/allpets', async(req, res)=>{
-     const cursor = petsCollection.find();
-  const result = await cursor.toArray();
-  // console.log(result, 'result of  get all pets')
-  res.send(result) 
+    const { search, species } = req.query;
+    
+    const query = {};
+    
+    if (search) {
+        query.petName = { $regex: search, $options: 'i' }
+    }
+    if (species) {
+        query.species = { $in: [species] }
+    }
+    
+    const result = await petsCollection.find(query).toArray();
+    res.send(result) 
 })
- 
+
+
+
+app.get('/featured', async(req, res)=>{
+  const result = await petsCollection.find().limit(6).toArray()
+  res.json(result)
+})  
+
 
 app.get('/mypets/:userId', async(req, res) => {
     const userId = req.params.userId
