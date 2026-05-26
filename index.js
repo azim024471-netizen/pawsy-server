@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -10,13 +11,13 @@ const { MongoClient, ServerApiVersion ,  ObjectId } = require('mongodb');
 const uri =process.env.MONGODB_URI;
 const port =process.env.PORT || 1234;
 
-//  const cors = require('cors');
-//  app.use(cors());
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
+
+
  const cors = require('cors');
- app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}))
+ app.use(cors());
+
+
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -27,6 +28,41 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+  const JWKS = createRemoteJWKSet(
+      new URL('http://localhost:3000/api/auth/jwks')
+    )
+
+
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({
+      message: 'unauthorized'
+    })
+  }
+
+  const token = authHeader.split(" ")[1]
+
+  if (!token) {
+    return res.status(401).json({
+      message: 'unauthorized'
+    })
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    
+    // console.log(payload, 'this is payload from jwks verify'); 
+    next();
+  } catch (error) {
+    console.error("JWT Verification Error:", error.message); 
+    return res.status(403).json({
+      message: 'Forbidden'
+    })
+  }
+}
 
 async function run() {
   try {await client.connect();
@@ -60,8 +96,7 @@ app.post('/allpets', async(req, res)=>{
  })
 
 
-
-
+ 
 
 // get////////////////////////////////////////////
 
@@ -100,7 +135,7 @@ app.get('/mypets/:userId', async(req, res) => {
 })
 
 
-app.get('/allpets/:id', async(req, res)=>{
+app.get('/allpets/:id', verifyToken, async(req, res)=>{
   
   const id = req.params.id;
   // console.log(id, 'id that have sent from ui to server')
