@@ -28,10 +28,9 @@ const client = new MongoClient(uri, {
   }
 });
 
-
-  const JWKS = createRemoteJWKSet(
-      new URL('http://localhost:3000/api/auth/jwks')
-    )
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+)
 
 
 const verifyToken = async (req, res, next) => {
@@ -54,7 +53,7 @@ const verifyToken = async (req, res, next) => {
   try {
     const { payload } = await jwtVerify(token, JWKS);
     
-    // console.log(payload, 'this is payload from jwks verify'); 
+    console.log(payload, 'this is payload from jwks verify.......aaa...........'); 
     next();
   } catch (error) {
     console.error("JWT Verification Error:", error.message); 
@@ -76,7 +75,7 @@ const adoptionCollection =db.collection('adoption_requests');
 
 // post ////////////////////////////////////////////////////////////////////////////////
 
-app.post('/allpets', async(req, res)=>{
+app.post('/allpets',verifyToken, async(req, res)=>{
     const petsData = req.body;
     // console.log(petsData, 'this is from server consol pets post')
     const result = await petsCollection.insertOne(petsData);
@@ -87,7 +86,7 @@ app.post('/allpets', async(req, res)=>{
 
 
 
- app.post('/adoption-requests', async(req, res)=>{
+ app.post('/adoption-requests',verifyToken, async(req, res)=>{
   const reqData = req.body;
   // console.log(reqData, 'this is from server consol adption post')
   const result = await adoptionCollection.insertOne(reqData);
@@ -127,7 +126,7 @@ app.get('/featured', async(req, res)=>{
 })  
 
 
-app.get('/mypets/:userId', async(req, res) => {
+app.get('/mypets/:userId',verifyToken, async(req, res) => {
     const userId = req.params.userId
     const cursor = petsCollection.find({ ownerId: userId })
     const result = await cursor.toArray()
@@ -150,7 +149,9 @@ app.get('/allpets/:id', verifyToken, async(req, res)=>{
 
 
 
-app.get('/adoption-requests/:userId', async(req, res) => {
+
+
+app.get('/adoption-requests/:userId', verifyToken, async(req, res) => {
     const userId = req.params.userId
     const cursor = adoptionCollection.find({ applicantId: userId })
     const result = await cursor.toArray()
@@ -159,7 +160,7 @@ app.get('/adoption-requests/:userId', async(req, res) => {
 
 
 
-app.get('/adoption-requests/pet/:petId', async (req, res) => {
+app.get('/adoption-requests/pet/:petId',verifyToken, async (req, res) => {
     const id = req.params.petId;
     const query = { petId: id }; 
     
@@ -172,7 +173,7 @@ app.get('/adoption-requests/pet/:petId', async (req, res) => {
 
 //  kew request korse kina jante ///////////////////////////////////////////// getttttttttttt
 
-app.get('/adoption-requests/check/:petId/:userId', async (req, res) => {
+app.get('/adoption-requests/check/:petId/:userId',verifyToken, async (req, res) => {
     const { petId, userId } = req.params;
     const result = await adoptionCollection.findOne({ 
         petId: petId, 
@@ -187,7 +188,7 @@ app.get('/adoption-requests/check/:petId/:userId', async (req, res) => {
 // for update one patch /////////////////////////////////////////
 
 
-app.patch('/allpets/:id', async(req, res)=>{
+app.patch('/allpets/:id',verifyToken, async(req, res)=>{
   const id = req.params.id;
   const updateData = req.body;
    const query = {_id : new ObjectId(id)}
@@ -198,7 +199,7 @@ app.patch('/allpets/:id', async(req, res)=>{
 
 
 
-app.patch('/adoption-requests/:id', async (req, res) => {
+app.patch('/adoption-requests/:id',verifyToken, async (req, res) => {
     const id = req.params.id;
     const { setStatus, petId } = req.body;
 
@@ -225,7 +226,7 @@ app.patch('/adoption-requests/:id', async (req, res) => {
 
 //  delete///////////////////////////////////////////////
 
-app.delete('/allpets/:id', async(req, res)=>{
+app.delete('/allpets/:id',verifyToken, async(req, res)=>{
   const id = req.params.id;
 const filter = { _id: new ObjectId(id) };
 
@@ -233,7 +234,7 @@ const filter = { _id: new ObjectId(id) };
   res.json(result)
 })
 
-app.delete('/adoption-requests/:id', async(req, res)=>{
+app.delete('/adoption-requests/:id',verifyToken, async(req, res)=>{
   const id = req.params.id;
 const filter = { _id: new ObjectId(id) };
 
