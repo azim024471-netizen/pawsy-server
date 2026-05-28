@@ -64,7 +64,8 @@ const verifyToken = async (req, res, next) => {
 }
 
 async function run() {
-  try {await client.connect();
+  try { 
+    // await client.connect(); 
 
     
 const db = client.db('Pawsy');
@@ -199,6 +200,7 @@ app.patch('/allpets/:id',verifyToken, async(req, res)=>{
 
 
 
+
 app.patch('/adoption-requests/:id',verifyToken, async (req, res) => {
     const id = req.params.id;
     const { setStatus, petId } = req.body;
@@ -208,8 +210,9 @@ app.patch('/adoption-requests/:id',verifyToken, async (req, res) => {
         { $set: { status: setStatus } }
     );
 
-    if (status === 'Approved') {
-        await petsCollection.updateOne(
+if (setStatus === 'Approved') {       
+  
+  await petsCollection.updateOne(
             { _id: new ObjectId(petId) },   
             { $set: { isAdopted: true } }
         );
@@ -247,7 +250,7 @@ const filter = { _id: new ObjectId(id) };
 
 
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
