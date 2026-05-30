@@ -65,16 +65,10 @@ const verifyToken = async (req, res, next) => {
 
 async function run() {
   try { 
-    // await client.connect(); 
 
-    
 const db = client.db('Pawsy');
 const petsCollection =db.collection('allpets');
 const adoptionCollection =db.collection('adoption_requests');
-
-
-
-// post ////////////////////////////////////////////////////////////////////////////////
 
 app.post('/allpets',verifyToken, async(req, res)=>{
     const petsData = req.body;
@@ -86,7 +80,6 @@ app.post('/allpets',verifyToken, async(req, res)=>{
 })
 
 
-
  app.post('/adoption-requests',verifyToken, async(req, res)=>{
   const reqData = req.body;
   // console.log(reqData, 'this is from server consol adption post')
@@ -94,12 +87,6 @@ app.post('/allpets',verifyToken, async(req, res)=>{
   // console.log(result, 'result form server  adoption postt')
   res.json(result)
  })
-
-
- 
-
-// get////////////////////////////////////////////
-
 
 
 
@@ -120,7 +107,6 @@ app.get('/allpets', async(req, res)=>{
 })
 
 
-
 app.get('/featured', async(req, res)=>{
   const result = await petsCollection.find().limit(6).toArray()
   res.json(result)
@@ -138,12 +124,10 @@ app.get('/mypets/:userId',verifyToken, async(req, res) => {
 app.get('/allpets/:id', verifyToken, async(req, res)=>{
   
   const id = req.params.id;
-  // console.log(id, 'id that have sent from ui to server')
   const query = {
     _id : new ObjectId(id)
   }
   const result = await petsCollection.findOne(query);
-  // console.log(result, 'from server after comple the  data  ger');
   res.send(result)
 })
 
@@ -172,7 +156,6 @@ app.get('/adoption-requests/pet/:petId',verifyToken, async (req, res) => {
 
 
 
-//  kew request korse kina jante ///////////////////////////////////////////// getttttttttttt
 
 app.get('/adoption-requests/check/:petId/:userId',verifyToken, async (req, res) => {
     const { petId, userId } = req.params;
@@ -184,9 +167,6 @@ app.get('/adoption-requests/check/:petId/:userId',verifyToken, async (req, res) 
 });
 
 
-
-
-// for update one patch /////////////////////////////////////////
 
 
 app.patch('/allpets/:id',verifyToken, async(req, res)=>{
@@ -227,7 +207,6 @@ if (setStatus === 'Approved') {
 
 
 
-//  delete///////////////////////////////////////////////
 
 app.delete('/allpets/:id',verifyToken, async(req, res)=>{
   const id = req.params.id;
@@ -246,11 +225,6 @@ const filter = { _id: new ObjectId(id) };
   res.json(result)
 })
 
-
-
-
-
-    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
